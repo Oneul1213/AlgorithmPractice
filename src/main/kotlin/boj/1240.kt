@@ -8,55 +8,43 @@
  *
  * 출력
  * 1. M개의 노드쌍별 거리
+ *
+ * 주의사항
+ * - 각 dfs 마다 visited 를 만들어서 사용하면 1000*1000 ~= 1MB 크기의 visited 가
+ *   1000 번 (M의 최대 값) 만들어져서 1000 MB가 됨(가비지 컬렉터가 메모리르 회수하기 때문)
  */
-// TODO : 틀렸습니다 해결
+// TODO : 9% 틀렸습니다 해결
 package boj
-
-import java.util.StringTokenizer
 
 fun main() {
     val reader = System.`in`.bufferedReader()
-    var tokenizer = StringTokenizer(reader.readLine(), " ")
-//    val (n, m) = reader.readLine().split(" ").map { it.toInt() }
-
-    val n = tokenizer.nextToken().toInt()
-    val m = tokenizer.nextToken().toInt()
+    val (n, m) = reader.readLine().split(" ").map { it.toInt() }
 
     // 인접 행렬 (1부터 사용)
     val adjArr = Array(n+1) { IntArray(n+1) { -1 } }
 
     // n-1개 줄의 입력을 인접 행렬에 추가
     for (i in 1 until n) {
-//        val (node1, node2, dist) = reader.readLine().split(" ").map { it.toInt() }
-        tokenizer = StringTokenizer(reader.readLine(), " ")
-        val node1 = tokenizer.nextToken().toInt()
-        val node2 = tokenizer.nextToken().toInt()
-        val dist = tokenizer.nextToken().toInt()
+        val (node1, node2, dist) = reader.readLine().split(" ").map { it.toInt() }
 
         adjArr[node1][node2] = dist
         adjArr[node2][node1] = dist
     }
 
-//    val searchList = mutableListOf<List<Int>>()
-//
-//    // m 개의 거리 쌍 입력 받기
-//    for (i in 0 until m) {
-//        val pair = reader.readLine().split(" ").map { it.toInt() }
-//        searchList.add(pair)
-//    }
-
     // 모든 케이스에 대한 dfs
 //    for (pair in searchList) {
 //        println(dfs(pair[0], pair[1], adjArr))
 //    }
+
     // 복구용 원본 생성
     val originArr = adjArr.copyOf()
 
+    // 모든 케이스에 대한 dfs
     for (i in 0 until m) {
-        tokenizer = StringTokenizer(reader.readLine(), " ")
-        val start = tokenizer.nextToken().toInt()
-        val end = tokenizer.nextToken().toInt()
-        println(dfs(start, end, adjArr))
+        val pair = reader.readLine().split(" ").map { it.toInt() }
+        println(dfs(pair[0], pair[1], adjArr))
+
+        // 원본 복구(메모리 대신 시간 사용)
         rollbackArray(originArr, adjArr)
     }
 }
@@ -65,15 +53,6 @@ fun main() {
 fun dfs(start: Int, end: Int, adjArr: Array<IntArray>): Int {
     val stack = ArrayDeque<Pair<Int, Int>>()
     val n = adjArr.size - 1
-
-//    // 탐색용 visited 행렬 생성 및 초기화
-//    val visited = Array(n + 1) { BooleanArray(n + 1) { true } }
-//
-//    for (i in 1..n) {
-//        for (j in 1 .. n) {
-//            if (adjArr[i][j] != -1) visited[i][j] = false
-//        }
-//    }
 
     // stack 에 시작값 넣기
     for ((index, element) in adjArr[start].withIndex()) {
