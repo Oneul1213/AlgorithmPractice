@@ -9,7 +9,7 @@
  * 출력
  * 1. M개의 노드쌍별 거리
  */
-// TODO : 메모리 초과 해결 (1차원 배열로 해결하는 방법 고민.. index 를 행, value 를 열로?)
+// TODO : 틀렸습니다 해결
 package boj
 
 import java.util.StringTokenizer
@@ -49,11 +49,15 @@ fun main() {
 //    for (pair in searchList) {
 //        println(dfs(pair[0], pair[1], adjArr))
 //    }
+    // 복구용 원본 생성
+    val originArr = adjArr.copyOf()
+
     for (i in 0 until m) {
         tokenizer = StringTokenizer(reader.readLine(), " ")
         val start = tokenizer.nextToken().toInt()
         val end = tokenizer.nextToken().toInt()
         println(dfs(start, end, adjArr))
+        rollbackArray(originArr, adjArr)
     }
 }
 
@@ -62,23 +66,23 @@ fun dfs(start: Int, end: Int, adjArr: Array<IntArray>): Int {
     val stack = ArrayDeque<Pair<Int, Int>>()
     val n = adjArr.size - 1
 
-    // 탐색용 visited 행렬 생성 및 초기화
-    val visited = Array(n + 1) { BooleanArray(n + 1) { true } }
-
-    for (i in 1..n) {
-        for (j in 1 .. n) {
-            if (adjArr[i][j] != -1) visited[i][j] = false
-        }
-    }
+//    // 탐색용 visited 행렬 생성 및 초기화
+//    val visited = Array(n + 1) { BooleanArray(n + 1) { true } }
+//
+//    for (i in 1..n) {
+//        for (j in 1 .. n) {
+//            if (adjArr[i][j] != -1) visited[i][j] = false
+//        }
+//    }
 
     // stack 에 시작값 넣기
-    for ((index, isVisited) in visited[start].withIndex()) {
-        if (!isVisited) {
+    for ((index, element) in adjArr[start].withIndex()) {
+        if (element != -1) {
             if (index == end) return adjArr[start][index]
 
             stack.add(Pair(index, adjArr[start][index]))
-            visited[start][index] = true
-            visited[index][start] = true
+            adjArr[start][index] = -1
+            adjArr[index][start] = -1
         }
     }
 
@@ -87,16 +91,29 @@ fun dfs(start: Int, end: Int, adjArr: Array<IntArray>): Int {
         val (node, dist) = stack.removeLast()
 
         // node 에 연결된 다른 노드 탐색
-        for ((index, isVisited) in visited[node].withIndex()) {
-            if (!isVisited) {
+        for ((index, element) in adjArr[node].withIndex()) {
+            if (element != -1) {
                 if (index == end) return dist + adjArr[node][index]
 
                 stack.add(Pair(index, dist + adjArr[node][index]))
-                visited[node][index] = true
-                visited[index][node] = true
+                adjArr[node][index] = -1
+                adjArr[index][node] = -1
             }
         }
     }
 
     return -1
+}
+
+// 배열을 dfs 전으로 원상 복구
+fun rollbackArray(origin: Array<IntArray>, changed: Array<IntArray>) {
+    val len = origin.size
+
+    for (i in 0 until len) {
+        for (j in 0 until len) {
+            if (origin[i][j] != changed[i][j]) {
+                changed[i][j] = origin[i][j]
+            }
+        }
+    }
 }
