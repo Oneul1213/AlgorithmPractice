@@ -6,8 +6,27 @@
  *
  * 출력
  * 2. 숫자 카드 묶음을 합칠 때 최소 비교 횟수
+ *
+ * 주의사항
+ * compareCount pq에 직접 넣으면 안됨. 그게 아니라 두 덱을 합친 새로운 덱을 pq에 다시 넣어주어야 함.
  */
-// TODO : 8% 틀렸습니다 해결 (작은 것 부터 고르는 방식 검증. 생각해보기)
+// 반례
+/*
+10
+123
+456
+234
+998
+12
+7
+876
+887
+455
+234
+
+답 : 12108
+출력 : 31343
+ */
 package boj
 
 import java.util.*
@@ -15,18 +34,19 @@ import java.util.*
 fun main() {
     val reader = System.`in`.bufferedReader()
     val n = reader.readLine().toInt()
-    val decks = mutableListOf<Int>()
+    val decks = mutableListOf<Long>()
 
     repeat(n) {
-        decks.add(reader.readLine().toInt())
+        decks.add(reader.readLine().toLong())
     }
 
     val pq = PriorityQueue(decks)
-    var compareCount = 0
+    var compareCount = 0L
     while (pq.size != 1) {
-        compareCount += pq.remove() + pq.remove()
-        pq.add(compareCount)
+        val deck = pq.remove() + pq.remove()
+        compareCount += deck
+        pq.add(deck)
     }
 
-    println(pq.remove())
+    println(compareCount)
 }
