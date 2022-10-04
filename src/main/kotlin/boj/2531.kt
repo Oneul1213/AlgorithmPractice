@@ -15,7 +15,7 @@ import java.lang.Integer.max
 
 fun main() {
     val reader = System.`in`.bufferedReader()
-    val (n, d, k, c) = reader.readLine().split(" ").map { it.toInt() }
+    val (n, _, k, c) = reader.readLine().split(" ").map { it.toInt() }
     val belt = IntArray(n)
 
     var pos = 0
