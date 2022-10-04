@@ -42,7 +42,7 @@ fun main() {
     while (start != 0) {
         eatSet.clear()
 
-        for (idx in start until end) eatSet.add(belt[idx % 8])
+        for (idx in start until end) eatSet.add(belt[idx % n])
         eatSet.add(c)
 
         maxCnt = max(eatSet.size, maxCnt)
