@@ -13,24 +13,52 @@ package boj
 fun main() {
     val reader = System.`in`.bufferedReader()
     val (n, m) = reader.readLine().split(" ").map { it.toInt() }
-    val grid = Array(n) { IntArray(m) }
-    val visited = Array(n) { BooleanArray(m) { false } }
+    val cheese = Array(n) { IntArray(m) }
+    val inTheAir = Array(n) { BooleanArray(m) { false } }
 
-    // grid, visited 초기화
+    // cheese 초기화
     for (i in 0 until n) {
-        val line = reader.readLine().split(" ").map { it.toInt() }.toIntArray()
-        grid[i] = line
-
-        for (j in 0 until m) {
-            // TODO : 치즈 안 쪽 빈 공간인지를 어떻게 판단해서 걔를 false 로 만들건지?
-            visited[i][j] = line[j] == 0
-        }
+        cheese[i] = reader.readLine().split(" ").map { it.toInt() }.toIntArray()
     }
 
-    // 치즈 바깥 부분만 visited 배열에 방문했다 하고 bfs 중 두 칸이 안 갔던 곳이면 grid 에서 그 칸 0으로 변경.
-    // 이렇게 총 시간 을 세면 끝.
+    // 빈 공간으로 공기 이동
+    moveAir(cheese, inTheAir, n, m)
+
+    // TODO : 녹아 없어질 치즈 탐색
+    
 }
 
-fun bfs() {
-
+fun moveAir(cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, n: Int, m: Int) {
+    loop@ for (i in 0 until n) {
+        for (j in 0 until m) {
+            if (cheese[i][j] == 0) flowBfs(i, j, cheese, inTheAir)
+            break@loop
+        }
+    }
 }
+
+fun flowBfs(startY: Int, startX: Int, cheese: Array<IntArray>, inTheAir: Array<BooleanArray>) {
+    val n = cheese.size
+    val m = cheese[0].size
+    val directions = arrayOf(intArrayOf(0, -1), intArrayOf(-1, 0), intArrayOf(0, 1), intArrayOf(1, 0))
+    val q = ArrayDeque<IntArray>()
+
+    q.add(intArrayOf(startY, startX))
+    inTheAir[startY][startX] = true
+    while (q.isNotEmpty()) {
+        val (y, x) = q.removeFirst()
+
+        for (direction in directions) {
+            val newY = y + direction[0]
+            val newX = x + direction[1]
+
+            if (canFlow(newY, newX, n, m, cheese)) {
+                q.add(intArrayOf(newY, newX))
+                inTheAir[newY][newX] = true
+            }
+        }
+    }
+}
+
+fun canFlow(y: Int, x: Int, n: Int, m: Int, cheese: Array<IntArray>) =
+    y in 0 until n && x in 0 until n && cheese[y][x] != 1
