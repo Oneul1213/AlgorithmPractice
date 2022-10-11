@@ -8,6 +8,7 @@
  * 출력
  * 1. 치즈가 모두 녹아 없어지는데 걸리는 정확한 시간(정수)
  */
+// TODO : 예제 실행 결과 안 나옴(시간 오래 걸리는 듯..?)
 package boj
 
 fun main() {
@@ -15,19 +16,35 @@ fun main() {
     val (n, m) = reader.readLine().split(" ").map { it.toInt() }
     val cheese = Array(n) { IntArray(m) }
     val inTheAir = Array(n) { BooleanArray(m) { false } }
+    var time = 0
 
-    // cheese 초기화
+    // cheese 배치
     for (i in 0 until n) {
         cheese[i] = reader.readLine().split(" ").map { it.toInt() }.toIntArray()
     }
 
-    // 빈 공간으로 공기 이동
-    moveAir(cheese, inTheAir, n, m)
+    while (cheese.any { it.contains(1) }) {
+        // 빈 공간으로 공기 이동
+        moveAir(cheese, inTheAir, n, m)
 
-    // TODO : 녹아 없어질 치즈 탐색
-    
+        // 삭제 예정 큐(삭제 예정 위치의 y, x 저장
+        val meltingQ = ArrayDeque<Pair<Int, Int>>()
+
+        // 치즈 녹음
+        melt(n, m, cheese, inTheAir, meltingQ)
+        while (meltingQ.isNotEmpty()) {
+            val (y, x) = meltingQ.removeFirst()
+            cheese[y][x] = 0
+        }
+
+        // 시간이 흐름
+        time++
+    }
+
+    println(time)
 }
 
+// 공기를 흘러야하는 위치로 흘림
 fun moveAir(cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, n: Int, m: Int) {
     loop@ for (i in 0 until n) {
         for (j in 0 until m) {
@@ -37,6 +54,7 @@ fun moveAir(cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, n: Int, m: I
     }
 }
 
+// 공기가 흐를 위치 탐색
 fun flowBfs(startY: Int, startX: Int, cheese: Array<IntArray>, inTheAir: Array<BooleanArray>) {
     val n = cheese.size
     val m = cheese[0].size
@@ -60,5 +78,37 @@ fun flowBfs(startY: Int, startX: Int, cheese: Array<IntArray>, inTheAir: Array<B
     }
 }
 
+// 격자를 벗어나지 않았는지 확인
+fun inGrid(y: Int, x: Int, n: Int, m: Int) = y in 0 until n && x in 0 until m
+
+// 공기가 흐를 수 있는 곳인지 확인
 fun canFlow(y: Int, x: Int, n: Int, m: Int, cheese: Array<IntArray>) =
-    y in 0 until n && x in 0 until n && cheese[y][x] != 1
+    inGrid(y, x, n, m) && cheese[y][x] != 1
+
+// 녹아야할 치즈 위치 표시
+fun melt(n: Int, m: Int, cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, meltingQ: ArrayDeque<Pair<Int, Int>>) {
+    for (y in 0 until n) {
+        for (x in 0 until m) {
+            if (cheese[y][x] == 1) {
+                if (canMelt(y, x, n, m, inTheAir)) meltingQ.add(Pair(y, x))
+            }
+        }
+    }
+}
+
+// 이 칸의 치즈가 녹을 수 있는지 확인
+fun canMelt(y: Int, x: Int, n: Int, m: Int, inTheAir: Array<BooleanArray>): Boolean {
+    val directions = arrayOf(
+        intArrayOf(0, -1), intArrayOf(-1, 0), intArrayOf(0, 1), intArrayOf(1, 0)
+    )
+    var edgesInTheAir = 0
+
+    for ((difY, difX) in directions) {
+        val newY = y + difY
+        val newX = x + difX
+
+        if (inGrid(newY, newX, n, m) && inTheAir[newY][newX]) edgesInTheAir++
+    }
+
+    return edgesInTheAir >= 2
+}
