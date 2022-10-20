@@ -8,7 +8,7 @@
  * 출력
  * 1. 치즈가 모두 녹아 없어지는데 걸리는 정확한 시간(정수)
  */
-// TODO : 예제 실행 결과 안 나옴(시간 오래 걸리는 듯..?)
+// TODO : 9% 틀렸습니다.
 package boj
 
 fun main() {
@@ -27,7 +27,7 @@ fun main() {
         // 빈 공간으로 공기 이동
         moveAir(cheese, inTheAir, n, m)
 
-        // 삭제 예정 큐(삭제 예정 위치의 y, x 저장
+        // 삭제 예정 큐(삭제 예정 위치의 y, x 저장)
         val meltingQ = ArrayDeque<Pair<Int, Int>>()
 
         // 치즈 녹음
@@ -46,10 +46,11 @@ fun main() {
 
 // 공기를 흘러야하는 위치로 흘림
 fun moveAir(cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, n: Int, m: Int) {
-    loop@ for (i in 0 until n) {
+    for (i in 0 until n) {
         for (j in 0 until m) {
-            if (cheese[i][j] == 0) flowBfs(i, j, cheese, inTheAir)
-            break@loop
+            if (cheese[i][j] == 0 && !inTheAir[i][j]) {
+                flowBfs(i, j, cheese, inTheAir)
+            }
         }
     }
 }
@@ -70,7 +71,7 @@ fun flowBfs(startY: Int, startX: Int, cheese: Array<IntArray>, inTheAir: Array<B
             val newY = y + direction[0]
             val newX = x + direction[1]
 
-            if (canFlow(newY, newX, n, m, cheese)) {
+            if (canFlow(newY, newX, n, m, cheese, inTheAir)) {
                 q.add(intArrayOf(newY, newX))
                 inTheAir[newY][newX] = true
             }
@@ -82,8 +83,8 @@ fun flowBfs(startY: Int, startX: Int, cheese: Array<IntArray>, inTheAir: Array<B
 fun inGrid(y: Int, x: Int, n: Int, m: Int) = y in 0 until n && x in 0 until m
 
 // 공기가 흐를 수 있는 곳인지 확인
-fun canFlow(y: Int, x: Int, n: Int, m: Int, cheese: Array<IntArray>) =
-    inGrid(y, x, n, m) && cheese[y][x] != 1
+fun canFlow(y: Int, x: Int, n: Int, m: Int, cheese: Array<IntArray>, inTheAir: Array<BooleanArray>) =
+    inGrid(y, x, n, m) && cheese[y][x] != 1 && !inTheAir[y][x]
 
 // 녹아야할 치즈 위치 표시
 fun melt(n: Int, m: Int, cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, meltingQ: ArrayDeque<Pair<Int, Int>>) {
