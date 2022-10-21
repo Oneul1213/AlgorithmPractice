@@ -8,7 +8,19 @@
  * 출력
  * 1. 치즈가 모두 녹아 없어지는데 걸리는 정확한 시간(정수)
  */
-// TODO : 9% 틀렸습니다.
+// 반례
+/*
+8 9
+0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0
+0 1 1 0 0 0 1 1 0
+0 1 0 1 1 1 0 1 0
+0 1 0 0 1 0 0 1 0
+0 1 0 1 1 1 0 1 0
+0 1 1 0 0 0 1 1 0
+0 0 0 0 0 0 0 0 0
+*/
+// 정답 3
 package boj
 
 fun main() {
@@ -46,11 +58,15 @@ fun main() {
 
 // 공기를 흘러야하는 위치로 흘림
 fun moveAir(cheese: Array<IntArray>, inTheAir: Array<BooleanArray>, n: Int, m: Int) {
-    for (i in 0 until n) {
-        for (j in 0 until m) {
-            if (cheese[i][j] == 0 && !inTheAir[i][j]) {
-                flowBfs(i, j, cheese, inTheAir)
-            }
+    initInTheAir(inTheAir, n, m)
+    flowBfs(0, 0, cheese, inTheAir)
+}
+
+// inTheAir 초기화(전부 false. 메모리 대신 시간 사용)
+fun initInTheAir(inTheAir: Array<BooleanArray>, n: Int, m: Int) {
+    for (y in 0 until n) {
+        for (x in 0 until m) {
+            inTheAir[y][x] = false
         }
     }
 }
